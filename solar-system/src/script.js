@@ -1,8 +1,8 @@
-import "./style.css";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import gsap from "gsap";
 import * as dat from "dat.gui";
+import { meshPlanets, ellipses } from "./planets";
+
+const OrbitControls = require("three-orbit-controls")(THREE);
 
 /**
  * Debug
@@ -28,29 +28,19 @@ const material = new THREE.MeshBasicMaterial({ color: "yellow" });
 const sun = new THREE.Mesh(geometry, material);
 scene.add(sun);
 
-// Ellipse
-const geometryEllipse = new THREE.RingGeometry(1, 1.01, 64);
-const planetEllipse = new THREE.Mesh(
-  geometryEllipse,
-  new THREE.MeshBasicMaterial({ color: "white" })
-);
-scene.add(planetEllipse);
-const folderEllipse = gui.addFolder("Ellipse");
-folderEllipse.add(geometryEllipse.parameters, "innerRadius");
-folderEllipse
-  .add(geometryEllipse.parameters, "outerRadius")
-  .min(0)
-  .max(5)
-  .step(0.01);
+//const folderEllipse = gui.addFolder("Ellipse");
+//folderEllipse.add(geometryEllipse.parameters, "innerRadius");
 
-//Planet
-const geometryPlanet = new THREE.SphereGeometry(0.1, 32, 32);
-const materialPlanet = new THREE.MeshBasicMaterial({ color: "blue" });
-const planet = new THREE.Mesh(geometryPlanet, materialPlanet);
-scene.add(planet);
-planet.position.x = 1;
+//Planets
+meshPlanets.forEach((planet) => {
+  scene.add(planet);
+});
 
-const folderPlanet = gui.addFolder("Planet");
+ellipses.forEach((planet) => {
+  scene.add(planet);
+});
+
+//const folderPlanet = gui.addFolder("Planet");
 
 // Debug
 // gui.add(sun, "radius").min(-5).max(5).step(0.01);
@@ -91,9 +81,9 @@ const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
   0.1,
-  100
+  1000
 );
-camera.position.z = 3;
+camera.position.z = 6;
 scene.add(camera);
 
 // Controls
@@ -120,9 +110,12 @@ const tick = () => {
   // Update controls
   controls.update();
 
-  // MOve planet
-  planet.position.x = Math.cos(elapsedTime);
-  planet.position.y = Math.sin(elapsedTime);
+  // Move planet
+  meshPlanets.forEach((planet) => {
+    const ellipseTime = elapsedTime / planet.time;
+    planet.position.x = Math.cos(ellipseTime) * planet.distance;
+    planet.position.y = Math.sin(ellipseTime) * planet.distance;
+  });
 
   // Render
   renderer.render(scene, camera);
