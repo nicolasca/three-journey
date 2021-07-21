@@ -2,7 +2,8 @@ import * as THREE from "three";
 import * as dat from "dat.gui";
 import { meshPlanets, ellipses } from "./planets";
 
-const OrbitControls = require("three-orbit-controls")(THREE);
+// const OrbitControls = require("three-orbit-controls")(THREE);
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 /**
  * Debug
@@ -23,9 +24,11 @@ const scene = new THREE.Scene();
  */
 
 // Sun
-const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-const material = new THREE.MeshBasicMaterial({ color: "yellow" });
-const sun = new THREE.Mesh(geometry, material);
+const geometry = new THREE.SphereGeometry(3, 32, 32);
+const sunMaterial = new THREE.MeshStandardMaterial({ color: "yellow" });
+sunMaterial.metalness = 0;
+sunMaterial.roughness = 0.2;
+const sun = new THREE.Mesh(geometry, sunMaterial);
 scene.add(sun);
 
 //const folderEllipse = gui.addFolder("Ellipse");
@@ -45,11 +48,17 @@ ellipses.forEach((planet) => {
 // Debug
 // gui.add(sun, "radius").min(-5).max(5).step(0.01);
 const folderSun = gui.addFolder("Sun");
+folderSun.add(sunMaterial, "metalness", 0, 1, 0.001);
+folderSun.add(sunMaterial, "roughness", 0, 1, 0.001);
 
-folderSun.add(sun.geometry.parameters, "radius", 0.1, 5, 0.01);
-folderSun.add(sun, "visible");
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
 
-folderSun.add(material, "wireframe");
+const pointLight = new THREE.PointLight(0xffffff, 0.5);
+pointLight.position.x = 0;
+pointLight.position.y = 0;
+pointLight.position.z = 0;
+scene.add(pointLight);
 
 /**
  * Sizes
@@ -83,7 +92,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 6;
+camera.position.z = 10;
 scene.add(camera);
 
 // Controls

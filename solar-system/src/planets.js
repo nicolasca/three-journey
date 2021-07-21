@@ -3,6 +3,13 @@ import * as THREE from "three";
 const SOLAR_SYSTEM_UNIT = 10;
 const SOLAR_SYSTEM_SIZE = 228;
 
+/**
+ * Textures loader
+ */
+const textureLoader = new THREE.TextureLoader();
+const clayRoughTexture = textureLoader.load("/clay/textures/rough.jpg");
+const clayHeightTexture = textureLoader.load("/clay/textures/height.jpg");
+
 const meshPlanets = [];
 const ellipses = [];
 
@@ -28,8 +35,8 @@ const planetProperties = [
   {
     name: "Earth",
     size: 0.5,
-    widthSegments: 32,
-    heightSegments: 32,
+    widthSegments: 128,
+    heightSegments: 128,
     color: 0x2274cc,
     ellipseTime: 4.2,
     distance: 150,
@@ -66,7 +73,7 @@ const planetProperties = [
     size: 2,
     widthSegments: 32,
     heightSegments: 32,
-    color: 0x802312,
+    color: "red",
     ellipseTime: 7.9,
     distance: 2872,
   },
@@ -82,16 +89,20 @@ const planetProperties = [
 ];
 
 function createPlanet(radius, widthSegments, heightSegments, color) {
+  const material = new THREE.MeshStandardMaterial({ color });
+  material.map = clayRoughTexture;
+  material.displacementMap = clayHeightTexture;
+  material.displacementScale = 10;
   return new THREE.Mesh(
     new THREE.SphereGeometry(radius, widthSegments, heightSegments),
-    new THREE.MeshBasicMaterial({ color: color })
+    material
   );
 }
 
 function createEllipse(radius, outerRadius, segments) {
   return new THREE.Mesh(
     new THREE.RingGeometry(radius, outerRadius, segments),
-    new THREE.LineBasicMaterial({ color: "white", side: THREE.DoubleSide })
+    new THREE.LineBasicMaterial({ color: 0x999999, side: THREE.DoubleSide })
   );
 }
 
